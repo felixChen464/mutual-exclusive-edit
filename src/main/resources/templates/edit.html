@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+
+<body>
+<span>
+    <button onclick="javascript:window.location.href='new'">new</button>
+    <button onclick="javascript:window.location.href='view'">view</button>
+</span>
+
+<br>
+file name:<br>
+<textarea type="text" id="fileName" disabled="true"></textarea>
+<br>
+text:
+<br>
+<textarea type="text" id="content"></textarea>
+<br>
+<br>
+<span class="btn-group">
+    <button id="submitEdit" onclick="submitEdit()">submit edit</button>
+    <button id = "tryToEdit" style="display:none;" onclick="tryToEdit()">try to edit</button>
+</span>
+<font color="red"><h2 align="right" id="countDescribe"></h2></font>
+<font color="red"><h3 align="right" id="num" size="70" face="impact"></h3></font>
+
+
+
+</body>
+<script src="/static/jquery-3.5.1.min.js"></script>
+<script src="/static/bootstrap.min.js"></script>
+<script src="/static/api.js"></script>
+<script>
+    let sec = 0;
+    var countDownTask;
+
+    $().ready(function () {
+
+        //查看cookies中是否有userId，没有则生成一个
+        var userId = getCookie('userId');
+        if (userId === undefined || userId === '') {
+            userId = uuid();
+            var d = new Date();
+            d.setTime(d.getTime() + (24 * 60 * 60 * 1000));
+            var expires = "expires=" + d.toGMTString();
+            setCookie('userId', userId, expires);
+        }
+
+        //检查锁并初始化
+        checkLockAndInit(getCookie('userId'), getFileId())
+    })
+
+    /**
+     *  尝试获取锁并刷新文件内容
+     */
+    function tryToEdit() {
+        var userId = getCookie('userId');
+        checkLockAndInit(userId, getFileId())
+    }
+
+    /**
+     *  提交编辑内容
+     */
+    function submitEdit() {
+        var fileName = document.getElementById('fileName').value;
+        var content = document.getElementById('content').value;
+
+        //进行编辑
+        $.ajax({
+            type: "POST",
+            dataType: "json",
+            url: common_file_record_pattern + "/edit",
+            contentType: "application/json",
+            data: JSON.stringify({
+                'userId': getCookie('userId'),
+                'fileId': getFileId(),
+                'fileName': fileName,
+                'content': content
+            }),
+            success: function (result) {
+                if (0 === result.code) {
+                    alert('edit successful!!!')
+                } else {
+                    alert(result.msg)
+
+                    //出现错误刷新回到编辑页面
+                    checkLockAndInit(getCookie('userId'), getFileId())
+                }
+            }
+        })
+    }
+
+    /**
+     *  获取当前页面的文件Id
+     */
+    function getFileId() {
+
+        //获取该页面的url问号后面的部分
+        var params = location.search;
+
+        //参数数组
+        var paramsArray = params.substring(1).split("&");
+
+        return paramsArray[0].split("=")[1];
+    }
+
+    /**
+     * 检查锁是否存在及其时间,尝试加锁编辑
+     */
+    function checkLockAndInit(userId, fileId) {
+
+        //获取锁状态
+        $.ajax({
+            type: "GET",
+            dataType: "json",
+            url: common_file_record_pattern + "/status",
+            contentType: "application/json",
+            data: {
+                'userId': userId,
+                'fileId': fileId
+            },
+            success: function (result) {
+
+                if (result.code === 0) {
+
+                    //没有锁
+                    if (result.data.value == null || getCookie('userId') === result.data.value) {
+
+                        //尝试加锁
+                        tryToAddLock(userId,fileId);
+                    }
+
+                    //已经有锁
+                    else {
+                        enableEdit(false);
+                        //设置倒计时时间为剩下的编辑时间
+                        sec = result.data.expireTime;
+                        letsTick();
+                    }
+
+                    //刷新文本内容
+                    refreshFileContent();
+
+                }
+                else {
+                    alert(result.msg);
+                }
+            }
+        });
+
+    }
+
+    /**
+     *  尝试加锁
+     */
+    function tryToAddLock(userId,fileId){
+
+        $.ajax({
+            type: "POST",
+            dataType: "json",
+            url: common_file_record_pattern + "/lock",
+            contentType: "application/json",
+            data: JSON.stringify({
+                'userId': userId,
+                'fileId': fileId
+            }),
+            success: function (result) {
+
+                //加锁成功
+                if (getCookie('userId') === result.data.value) {
+                    //设置文本框、保存按钮为可编辑状态
+                    enableEdit(true);
+                }
+
+                //加锁失败
+                else {
+                    //设置文本框、保存按钮为不可编辑状态
+                    enableEdit(false);
+                }
+
+                //设置倒计时
+                sec = result.data.expireTime;
+                letsTick();
+            }
+
+        })
+    }
+
+    /**
+     *  让我们开始计时
+     */
+    function letsTick() {
+        clearInterval(countDownTask);
+        countDownTask = setInterval('countDown()', 1000);
+    }
+
+    /**
+     *  获取文件内容，填充到文本框
+     */
+    function refreshFileContent(){
+        $.ajax({
+            type: "GET",
+            dataType: "json",
+            url: common_file_record_pattern + "/content",
+            contentType: "application/json",
+            data: {'fileId': getFileId()},
+            success: function (result) {
+                console.log("data is :" + result)
+                if (result.code === 0) {
+                    setFileName(result.data.fileName)
+                    setTextArea(result.data.content)
+                } else {
+                    alert(result.msg);
+                }
+            }
+        });
+    }
+
+    /**
+     *  将文本框与提交编辑按钮设置为可用或不可用
+     */
+    function enableEdit(enable) {
+        var contentInput = document.getElementById('content');
+        var submitInput = document.getElementById('submitEdit');
+        contentInput.disabled = !enable;
+        submitInput.disabled = !enable;
+        var tryToEdit = document.getElementById('tryToEdit');
+
+        if (enable) {
+            countDescribe.innerText = "time left to edit";
+            tryToEdit.style.display = "none";
+        } else {
+            countDescribe.innerText = "time left to lock"
+            tryToEdit.style.display = "block";
+        }
+    }
+
+    /**
+     * 设置文件名
+     */
+    function setFileName(filename) {
+        var fileNameInput = document.getElementById('fileName');
+        fileNameInput.value = filename;
+
+    }
+
+    /**
+     * 设置文本框的内容
+     */
+    function setTextArea(content) {
+        var contentInput = document.getElementById('content');
+        contentInput.value = content;
+    }
+
+    /**
+     * 设置cookie值
+     */
+    function setCookie(cname, cvalue, exdays) {
+        var d = new Date();
+        d.setTime(d.getTime() + (exdays * 24 * 60 * 60 * 1000));
+        var expires = "expires=" + d.toGMTString();
+        document.cookie = cname + "=" + cvalue + "; " + expires;
+    }
+
+    /**
+     *  获取cookie的某个类型值
+     */
+    function getCookie(cname) {
+        var name = cname + "=";
+        var ca = document.cookie.split(';');
+        for (var i = 0; i < ca.length; i++) {
+            var c = ca[i].trim();
+            if (c.indexOf(name) == 0) return c.substring(name.length, c.length);
+        }
+        return "";
+    }
+
+    /**
+     * 生成uuid
+     * @returns {string}
+     */
+    function uuid() {
+        var s = [];
+        var hexDigits = "0123456789abcdef";
+        for (var i = 0; i < 36; i++) {
+            s[i] = hexDigits.substr(Math.floor(Math.random() * 0x10), 1);
+        }
+        // bits 12-15 of the time_hi_and_version field to 0010
+        s[14] = "4";
+        // bits 6-7 of the clock_seq_hi_and_reserved to 01
+        s[19] = hexDigits.substr((s[19] & 0x3) | 0x8, 1);
+        s[8] = s[13] = s[18] = s[23] = "-";
+        var uuid = s.join("");
+        return uuid;
+
+    }
+
+    /**
+     * 刷新倒计时时间
+     */
+    function countDown() {
+        if (sec > 0) {
+            num.innerHTML = sec--;
+        } else {
+
+            //如果之前是在编辑，那么编辑时间到了
+            if(countDescribe.innerHTML === "time left to edit"){
+                countDescribe.innerHTML = "edit time finished";
+                enableEdit(false);
+            }
+
+            //否则之前是被其他用户锁着的，此时展示尝试编辑按钮
+            else{
+                num.innerHTML = "";
+                var tryToEdit = document.getElementById('tryToEdit');
+                tryToEdit.style.display = "block";
+            }
+
+        }
+    }
+</script>
+</html>

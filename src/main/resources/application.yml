@@ -4,13 +4,47 @@ server:
 spring:
     datasource:
         name: test
-        url: jdbc:mysql://127.0.0.1:3306/project?useUnicode=true&characterEncoding=utf-8
+        url: jdbc:mysql://127.0.0.1:3306/project?useUnicode=true&characterEncoding=UTF-8&serverTimezone=UTC
         username: root
         password: felix
         driver-class-name: com.mysql.jdbc.Driver
-
+    redis:
+        host: 127.0.0.1
+        port: 6379
+        password:
+        database: 0
+        jedis:
+          pool:
+            max-idle: 6
+            max-active: 32
+            min-idle: 4
+            max-wait: 10000
 mybatis:
   type-aliases-package: com.ringcentral.assessment.dao
+  logging:
+    level:
+      com:
+        ringcentral:
+          assessment:
+            dao: info
+  table.auto: updateModifyTime
 
 file.store:
   path: /home/edit_file/store
+
+lock:
+  seconds: 60
+
+#thymelea模板配置
+spring.thymeleaf:
+  prefix: classpath:/templates/
+  suffix: .html
+  mode: HTML5
+  encoding: UTF-8
+  content-type: text/html
+  cache: false
+spring.resources.chain.strategy.content:
+  enabled: true
+  paths: /**
+
+spring.mvc.static-path-pattern: /static/**
