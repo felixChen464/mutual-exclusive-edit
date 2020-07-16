@@ -26,10 +26,13 @@ public class FileRecord implements Serializable {
     private String fileName;
 
     /**
-     * 下载文件时用到的code
+     * 文件的创建时间
      */
-    @JsonIgnore
-    private String code;
+    private String createTime;
 
+    /**
+     * 文件的最近一次编辑时间
+     */
+    private String modifyTime;
 
 }

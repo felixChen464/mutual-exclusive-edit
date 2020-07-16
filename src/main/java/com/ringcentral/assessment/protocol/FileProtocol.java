@@ -22,10 +22,33 @@ public interface FileProtocol {
 
     }
 
+    interface Lock{
+
+        @Data
+        class Input{
+
+            /**
+             * 发送编辑请求的用户id
+             */
+            private String userId;
+
+            /**
+             * 文件id
+             */
+            private String fileId;
+        }
+
+    }
+
     interface EditFile{
 
         @Data
         class Input{
+
+            /**
+             * 发送编辑请求的用户id
+             */
+            private String userId;
 
             /**
              * 文件id

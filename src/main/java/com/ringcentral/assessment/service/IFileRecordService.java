@@ -1,6 +1,10 @@
 package com.ringcentral.assessment.service;
 
 import com.ringcentral.assessment.entity.FileRecord;
+import com.ringcentral.assessment.lock.entity.LockItem;
+import com.ringcentral.assessment.protocol.FileProtocol;
+import com.ringcentral.assessment.util.Result;
+import com.ringcentral.assessment.vo.ContentVo;
 import java.util.List;
 
 public interface IFileRecordService {
@@ -17,11 +21,18 @@ public interface IFileRecordService {
     List<FileRecord> getAll();
 
     /**
-     * 获取文件记录
+     * 获取文件内容
      * @param fileId
      * @return
      */
-    FileRecord getFile(String fileId);
+    ContentVo getFileContent(String fileId);
+
+    /**
+     *查看文件当前状态
+     * @param fileId
+     * @return
+     */
+    LockItem getFileStatus(String fileId, String userId);
 
     /**
      * 存储文件
@@ -33,10 +44,15 @@ public interface IFileRecordService {
 
     /**
      * 编辑文件
-     * @param fileId
-     * @param fileName
-     * @param content
+     * @param input
      * @return
      */
-    FileRecord editFile(String fileId,String fileName,String content);
+    Result editFile(FileProtocol.EditFile.Input input);
+
+    /**
+     * 给某个文件加锁
+     * @param input
+     * @return
+     */
+    Result lock(FileProtocol.Lock.Input input);
 }
