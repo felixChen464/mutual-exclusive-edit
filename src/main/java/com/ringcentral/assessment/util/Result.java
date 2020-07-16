@@ -7,7 +7,7 @@ import java.io.Serializable;
  * @Date 2020/7/11
  */
 @Data
-public class Result<T> implements Serializable {
+public class Result implements Serializable {
 
     /**
      * 错误码
@@ -22,9 +22,9 @@ public class Result<T> implements Serializable {
     /**
      * 正常数据返回
      */
-    private T data;
+    private Object data;
 
-    private Result(int code, String msg, T data) {
+    private Result(int code, String msg, Object data) {
         this.code = code;
         this.msg = msg;
         this.data = data;
@@ -34,20 +34,20 @@ public class Result<T> implements Serializable {
      * 成功返回
      *
      * @param data
-     * @param <T>
+     * @param
      * @return
      */
-    public static <T> Result<T> success(T data) {
-        return new Result<T>(0, "success", data);
+    public static  Result success(Object data) {
+        return new Result(0, "success", data);
     }
 
     /**
      * 成功返回
      *
-     * @param <T>
+     * @param
      * @return
      */
-    public static <T> Result<T> success() {
+    public static  Result success() {
         return success(null);
     }
 
@@ -56,34 +56,24 @@ public class Result<T> implements Serializable {
      * 失败返回
      *
      * @param codeMsg
-     * @param <T>
+     * @param
      * @return
      */
-    public static <T> Result<T> error(CodeMsg codeMsg) {
-        return new Result<T>(codeMsg.getCode(), codeMsg.getMsg(), null);
+    public static  Result error(CodeMsg codeMsg) {
+        return new Result(codeMsg.getCode(), codeMsg.getMsg(), null);
     }
 
     /**
      * 失败返回
      *
      * @param msg
-     * @param <T>
+     * @param
      * @return
      */
-    public static <T> Result<T> validationError(String msg) {
+    public static Result validationError(String msg) {
         CodeMsg validationError = CodeMsg.BAD_REQUEST_ERROR;
         String format = String.format(validationError.getMsg(), msg);
-        return new Result<T>(validationError.getCode(), format, null);
+        return new Result(validationError.getCode(), format, null);
     }
 
-    /**
-     * 失败返回
-     *
-     * @param msg
-     * @param <T>
-     * @return
-     */
-    public static <T> Result<T> badRequest(Integer code,String msg) {
-        return new Result<T>(code,msg,null);
-    }
 }

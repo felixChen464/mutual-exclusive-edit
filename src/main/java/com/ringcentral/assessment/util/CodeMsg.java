@@ -36,6 +36,6 @@ public class CodeMsg {
      * 通用错误返回
      */
     public static final CodeMsg SERVER_INTERNAL_ERROR = new CodeMsg(500,"server internal error");
-    public static final CodeMsg BAD_REQUEST_ERROR = new CodeMsg(400,"参数效验错误：%s！");
-    public static final CodeMsg BIZ_ERROR = new CodeMsg(60002,"业务异常：%s！");
+    public static final CodeMsg BAD_REQUEST_ERROR = new CodeMsg(400,"%s！");
+    public static final CodeMsg BIZ_ERROR = new CodeMsg(60002,"biz exception：%s！");
 }

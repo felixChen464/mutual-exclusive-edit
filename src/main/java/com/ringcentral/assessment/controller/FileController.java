@@ -1,16 +1,12 @@
 package com.ringcentral.assessment.controller;
 
-import com.mysql.jdbc.StringUtils;
-import com.ringcentral.assessment.entity.FileRecord;
 import com.ringcentral.assessment.protocol.FileProtocol;
 import com.ringcentral.assessment.service.IFileRecordService;
 import com.ringcentral.assessment.util.Result;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-
-import static com.ringcentral.assessment.constant.ErrorCode.FILE_NOT_FOUND;
-import static com.ringcentral.assessment.constant.ErrorCode.LACK_OF_FILE_ID;
-import static com.ringcentral.assessment.constant.ErrorCode.LACK_OF_FILE_NAME;
+import static com.ringcentral.assessment.constant.ErrorCode.*;
 
 /**
  * @Author cxh
@@ -42,30 +38,25 @@ public class FileController {
      */
     @GetMapping("/content")
     public Result getFileContent(String fileId) {
-
-        if (StringUtils.isEmptyOrWhitespaceOnly(fileId)) {
+        if (StringUtils.isEmpty(fileId)) {
             return Result.validationError(LACK_OF_FILE_ID);
         }
-        return Result.success(iFileRecordService.getFile(fileId));
+        return Result.success(iFileRecordService.getFileContent(fileId));
     }
 
+
     /**
-     * 获取文件下载地址
-     *
+     * 当前文件状态
      * @param fileId
+     * @param userId
      * @return
      */
-    @GetMapping("/downloadUrl")
-    public Result download(String fileId){
-
-        if(StringUtils.isEmptyOrWhitespaceOnly(fileId)){
+    @GetMapping("/status")
+    public Result getFileStatus(String fileId,String userId){
+        if(StringUtils.isEmpty(fileId)){
             return Result.validationError(LACK_OF_FILE_ID);
         }
-        FileRecord fileRecord = iFileRecordService.getFile(fileId);
-        if (fileRecord == null){
-            return Result.validationError(FILE_NOT_FOUND);
-        }
-        return Result.success(fileRecord);
+        return Result.success(iFileRecordService.getFileStatus(fileId,userId));
     }
 
     /**
@@ -76,10 +67,21 @@ public class FileController {
     @PostMapping("/save")
     public Result save(@RequestBody FileProtocol.SaveFile.Input input){
 
-        if(StringUtils.isEmptyOrWhitespaceOnly(input.getFileName())){
+        if(StringUtils.isEmpty(input.getFileName())){
             return Result.validationError(LACK_OF_FILE_NAME);
         }
         return Result.success(iFileRecordService.saveFile(input.getFileName(),input.getContent()));
+    }
+
+    @PostMapping("/lock")
+    public Result lock(@RequestBody FileProtocol.Lock.Input input){
+        if (StringUtils.isEmpty(input.getFileId())){
+            return Result.validationError(LACK_OF_FILE_ID);
+        }
+        if (StringUtils.isEmpty(input.getUserId())){
+            return Result.validationError(LACK_OF_USER_ID);
+        }
+        return iFileRecordService.lock(input);
     }
 
     /**
@@ -90,10 +92,10 @@ public class FileController {
     @PostMapping("/edit")
     public Result edit(@RequestBody FileProtocol.EditFile.Input input){
 
-        if (StringUtils.isEmptyOrWhitespaceOnly(input.getFileId())){
+        if (StringUtils.isEmpty(input.getFileId())){
             return Result.validationError(LACK_OF_FILE_ID);
         }
-        return Result.success(iFileRecordService.editFile(input.getFileId(),input.getFileName(),input.getContent()));
+        return iFileRecordService.editFile(input);
     }
 
 }

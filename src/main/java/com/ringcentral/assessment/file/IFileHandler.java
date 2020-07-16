@@ -1,8 +1,6 @@
 package com.ringcentral.assessment.file;
 
-import com.sun.deploy.net.HttpResponse;
-
-import javax.servlet.ServletResponse;
+import javax.servlet.http.HttpServletResponse;
 import java.io.File;
 
 public interface IFileHandler {
@@ -25,11 +23,11 @@ public interface IFileHandler {
     String getFileContent(String fileId);
 
     /**
-     * 本低
+     * 下载文件
      *
      * @param response
      * @param code
      */
-    void handleDownload(ServletResponse response, String code);
+    void handleDownload(HttpServletResponse response, String code, String fileName);
 
 }
