@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<button onclick="javascript:window.location.href='new'">new</button>
+<button onclick="javascript:window.location.href='view'">view</button>
+<table id="fileTable" border="1">
+    <tr>
+        <th>file name</th>
+        <th>operation</th>
+        <th>create time</th>
+        <th>modify time</th>
+    </tr>
+    <tr></tr>
+</table>
+
+<script src="/static/jquery-3.5.1.min.js"></script>
+<script src="/static/api.js"></script>
+<script>
+
+    /**
+     *  todo 填充表格，当前每次填充表格都插入所有行
+     */
+    function fillInTable(fileRecord, index) {
+        var fileTable = document.getElementById('fileTable');
+        var currentRows = fileTable.rows.length;
+        fileTable.insertRow(currentRows);
+        currentRows = currentRows - 1;
+        let row = fileTable.rows[currentRows];
+        row.innerHTML =
+            '<td> <a href=' + '/download?fileCode=' + fileRecord.id + '>' + fileRecord.fileName + '</td>' +
+            '<td><button onclick=edit(\'' + fileRecord.id + '\')>edit</button></td>' +
+            '<td>' + fileRecord.createTime + '</td>' +
+            '<td>' + fileRecord.modifyTime + '</td>';
+    }
+
+    /**
+     *  跳转到编辑页
+     */
+    function edit(fileId) {
+        window.location.href = 'edit?fileId=' + fileId;
+    }
+
+    /**
+     * 当页面加载就绪则获取所有文件列表
+     */
+    $().ready(function () {
+
+        $.ajax({
+            type: "GET",
+            dataType: "json",
+            url: common_file_record_pattern + "/all",
+            contentType: "application/json",
+            data: {},
+            success: function (result) {
+                console.log("data is :" + result)
+                if (result.code === 0) {
+                    result.data.forEach(fillInTable)
+                } else {
+                    alert(result.message);
+                }
+            }
+        });
+    })
+</script>
+</body>
+</html>

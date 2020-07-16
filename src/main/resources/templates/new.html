@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<script src="/static/jquery-3.5.1.min.js"></script>
+<script src="/static/api.js"></script>
+<body>
+<button onclick="javascript:window.location.href='new'">new</button>
+<button onclick="javascript:window.location.href='view'">view</button>
+
+<!DOCTYPE html>
+<html>
+<body>
+
+<form name="saveForm">
+    file name:<br>
+    <input type="text" id="fileName" value="new file">
+    <br>
+    text:<br>
+    <textarea type="text" id="content">type your content here</textarea>
+    <br><br>
+    <input type="button" value="Submit" onclick="save(fileName,content)">
+</form>
+
+</body>
+</html>
+</body>
+<script language="JavaScript">
+    /**
+     *
+     * @returns {boolean}
+     */
+    function save() {
+        var fileName = document.getElementById("fileName").value;
+        var content = document.getElementById("content").value;
+        $.ajax({
+            type: "POST",
+            dataType: "json",
+            url: common_file_record_pattern + "/save",
+            contentType: "application/json",
+            data: JSON.stringify({
+                "fileName": fileName,
+                "content": content
+            }),
+            success: function (result) {
+                console.log("data is :" + result)
+                if (result.code === 0) {
+                    alert("save successful");
+                    window.location.href = "/view";
+                } else {
+                    alert(result.message)
+                }
+            }
+        });
+    }
+</script>
+</html>
+
