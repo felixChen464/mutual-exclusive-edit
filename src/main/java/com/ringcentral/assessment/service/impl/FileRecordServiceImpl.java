@@ -4,14 +4,13 @@ import com.ringcentral.assessment.dao.FileRecordMapper;
 import com.ringcentral.assessment.entity.FileRecord;
 import com.ringcentral.assessment.exception.BadRequestException;
 import com.ringcentral.assessment.file.IFileHandler;
-import com.ringcentral.assessment.lock.LockService;
+import com.ringcentral.assessment.lock.FileMutualExclusiveLock;
 import com.ringcentral.assessment.lock.entity.LockItem;
 import com.ringcentral.assessment.protocol.FileProtocol;
 import com.ringcentral.assessment.service.IFileRecordService;
 import com.ringcentral.assessment.util.Result;
 import com.ringcentral.assessment.vo.ContentVo;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -31,12 +30,6 @@ public class FileRecordServiceImpl implements IFileRecordService {
 
     private SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
-    /**
-     * 锁要维持的时间
-     */
-    @Value(value = "${lock.seconds}")
-    private Integer lockSeconds;
-
     @Autowired
     private FileRecordMapper fileRecordMapper;
 
@@ -44,7 +37,7 @@ public class FileRecordServiceImpl implements IFileRecordService {
     private IFileHandler fileHandler;
 
     @Autowired
-    private LockService lockService;
+    private FileMutualExclusiveLock fileMutualExclusiveLock;
 
     @Override
     public FileRecord getById(String fileId) {
@@ -81,7 +74,7 @@ public class FileRecordServiceImpl implements IFileRecordService {
     @Override
     public LockItem getFileStatus(String fileId, String userId) {
 
-        return lockService.getLockItem(fileId);
+        return fileMutualExclusiveLock.getLockItem(fileId);
     }
 
     @Override
@@ -109,11 +102,16 @@ public class FileRecordServiceImpl implements IFileRecordService {
 
     @Override
     public Result editFile(FileProtocol.EditFile.Input input) {
-        if (lockService.tryLock(input.getFileId(), input.getUserId(), lockSeconds)) {
+
+        //尝试获得锁
+        if (fileMutualExclusiveLock.tryLock(input.getFileId(), input.getUserId())) {
             fileHandler.writeStringFile(input.getFileId(), input.getContent());
-            fileRecordMapper.updateModifyTime(sdf.format(new Date()),input.getFileId());
+            fileRecordMapper.updateModifyTime(sdf.format(new Date()), input.getFileId());
             return Result.success();
-        } else {
+        }
+
+        //失败则告知客户端文件仍在锁定中
+        else {
             return Result.validationError(SUCH_FILE_IS_ON_LOCK);
         }
     }
@@ -122,9 +120,9 @@ public class FileRecordServiceImpl implements IFileRecordService {
     public Result lock(FileProtocol.Lock.Input input) {
 
         //尝试加锁
-        lockService.tryLock(input.getFileId(), input.getUserId(), lockSeconds);
+        fileMutualExclusiveLock.tryLock(input.getFileId(), input.getUserId());
 
         //返回加锁结果
-        return Result.success(lockService.getLockItem(input.getFileId()));
+        return Result.success(fileMutualExclusiveLock.getLockItem(input.getFileId()));
     }
 }

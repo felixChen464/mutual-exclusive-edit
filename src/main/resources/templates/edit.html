@@ -21,7 +21,7 @@ text:
 <br>
 <br>
 <span class="btn-group">
-    <button id="submitEdit" onclick="submitEdit()">submit edit</button>
+    <button id="submitEdit" onclick="submitEdit()">Save</button>
     <button id = "tryToEdit" style="display:none;" onclick="tryToEdit()">try to edit</button>
 </span>
 <font color="red"><h2 align="right" id="countDescribe"></h2></font>
@@ -308,7 +308,7 @@ text:
 
             //如果之前是在编辑，那么编辑时间到了
             if(countDescribe.innerHTML === "time left to edit"){
-                countDescribe.innerHTML = "edit time finished";
+                countDescribe.innerHTML = "edit time is up";
                 enableEdit(false);
             }
 

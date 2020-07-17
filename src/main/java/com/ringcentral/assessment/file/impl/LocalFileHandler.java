@@ -13,6 +13,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.net.URLEncoder;
 import static com.ringcentral.assessment.constant.CommonConstant.TXT;
 import static com.ringcentral.assessment.constant.ErrorCode.FILE_NOT_FOUND;
 import static com.ringcentral.assessment.constant.ErrorCode.READ_FILE_ERROR;
@@ -96,11 +97,12 @@ public class LocalFileHandler implements IFileHandler {
         if (!file.exists() || file.isHidden() || !file.canRead() || file.isHidden()) {
             throw new BadRequestException(FILE_NOT_FOUND);
         }
-        try (FileInputStream fileInputStream = FileUtils.openInputStream(file)){
+        try (FileInputStream fileInputStream = FileUtils.openInputStream(file)) {
             response.reset();
             response.setCharacterEncoding("UTF-8");
-            response.setContentType("application/x-msdownload");
-            response.setHeader("Content-Disposition", "attachment; filename=" + fileName);
+            response.setContentType("application/octet-stream");
+            fileName = URLEncoder.encode(fileName, "UTF-8");
+            response.setHeader("Content-Disposition", "attachment;filename=" + fileName);
             IOUtils.copy(fileInputStream, response.getOutputStream());
         } catch (IOException e) {
             logger.error("handle download file error:{}", e);

@@ -9,7 +9,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.thymeleaf.util.StringUtils;
 import javax.servlet.http.HttpServletResponse;
-import static com.ringcentral.assessment.constant.ErrorCode.LACK_OF_FILE_CODE;
+import static com.ringcentral.assessment.constant.ErrorCode.LACK_OF_FILE_ID;
 
 /**
  * @Author cxh
@@ -34,7 +34,7 @@ public class FileAccessController {
     public void download(String fileId, HttpServletResponse servletResponse) {
 
         if (StringUtils.isEmpty(fileId)) {
-            throw new BadRequestException(LACK_OF_FILE_CODE);
+            throw new BadRequestException(LACK_OF_FILE_ID);
         }
 
         FileRecord fileRecord = iFileRecordService.getById(fileId);

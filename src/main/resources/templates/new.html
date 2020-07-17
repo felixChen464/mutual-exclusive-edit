@@ -13,15 +13,15 @@
 <!DOCTYPE html>
 <html>
 <body>
-
 <form name="saveForm">
+    <br>
     file name:<br>
-    <input type="text" id="fileName" value="new file">
+    <textarea type="text" id="fileName" disabled="true">new file</textarea>
     <br>
     text:<br>
     <textarea type="text" id="content">type your content here</textarea>
     <br><br>
-    <input type="button" value="Submit" onclick="save(fileName,content)">
+    <input type="button" value="Save" onclick="save(fileName,content)">
 </form>
 
 </body>
