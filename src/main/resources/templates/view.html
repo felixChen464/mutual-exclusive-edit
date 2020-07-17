@@ -31,8 +31,8 @@
         currentRows = currentRows - 1;
         let row = fileTable.rows[currentRows];
         row.innerHTML =
-            '<td> <a href=' + '/download?fileCode=' + fileRecord.id + '>' + fileRecord.fileName + '</td>' +
-            '<td><button onclick=edit(\'' + fileRecord.id + '\')>edit</button></td>' +
+            '<td> <a href=' + '/download?fileId=' + fileRecord.id + '>' + fileRecord.fileName + '</td>' +
+            '<td><button onclick=edit(\'' + fileRecord.id + '\')>Edit</button></td>' +
             '<td>' + fileRecord.createTime + '</td>' +
             '<td>' + fileRecord.modifyTime + '</td>';
     }
@@ -42,6 +42,18 @@
      */
     function edit(fileId) {
         window.location.href = 'edit?fileId=' + fileId;
+    }
+
+    /**
+     *  根据时间排序
+     */
+    function sortByTime(arr){
+
+        arr.sort(function(a,b) {
+            return Date.parse(b.modifyTime.replace(/-/g,"/"))-Date.parse(a.modifyTime.replace(/-/g,"/"));
+        });
+
+        return arr;
     }
 
     /**
@@ -58,6 +70,7 @@
             success: function (result) {
                 console.log("data is :" + result)
                 if (result.code === 0) {
+                    result.data = sortByTime(result.data);
                     result.data.forEach(fillInTable)
                 } else {
                     alert(result.message);

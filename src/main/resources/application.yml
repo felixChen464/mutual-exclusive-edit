@@ -19,6 +19,7 @@ spring:
             max-active: 32
             min-idle: 4
             max-wait: 10000
+
 mybatis:
   type-aliases-package: com.ringcentral.assessment.dao
   logging:
@@ -29,11 +30,12 @@ mybatis:
             dao: info
   table.auto: updateModifyTime
 
-file.store:
-  path: /home/edit_file/store
-
-lock:
-  seconds: 60
+# 文件存储以及锁的时间
+file:
+  store:
+    path: /home/edit_file/store
+  lock:
+    seconds: 60
 
 #thymelea模板配置
 spring.thymeleaf:
@@ -47,4 +49,5 @@ spring.resources.chain.strategy.content:
   enabled: true
   paths: /**
 
+#静态文件路径
 spring.mvc.static-path-pattern: /static/**
