@@ -60,3 +60,8 @@
 7、可能存在的其他优化点：
    7.1 文件名重复校验
    7.2 获取文件列表分页
+   7.3 可以使用websocket在对应文件被更新完毕以后，通知对应客户端进行刷新
+   
+## 运行应用
+请将application.yml文件与mutual-exclusive-edit.jar放置与同一路径，启动命令为：
+java -jar mutual-exclusive-edit.jar -Dspring.config.location=./application.yml &
