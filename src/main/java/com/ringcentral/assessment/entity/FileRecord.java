@@ -1,9 +1,7 @@
 package com.ringcentral.assessment.entity;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 import lombok.experimental.Accessors;
-
 import java.io.Serializable;
 
 /**

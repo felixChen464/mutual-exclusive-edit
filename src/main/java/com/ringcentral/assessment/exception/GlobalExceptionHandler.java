@@ -21,7 +21,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(value = BadRequestException.class)
     public Result handleException(BadRequestException e) {
-        logger.warn("bad request,message:{}",e);
+        logger.info("bad request,message:{}",e);
         return Result.validationError(e.getShortMessage());
     }
 

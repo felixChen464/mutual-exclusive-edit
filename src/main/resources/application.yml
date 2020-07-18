@@ -1,6 +1,7 @@
 server:
   port: 8080
 
+# 数据库以及缓存配置，启动应用需要修改对应配置
 spring:
     datasource:
         name: test
@@ -20,6 +21,13 @@ spring:
             min-idle: 4
             max-wait: 10000
 
+# 文件存储以及锁的时间,如果需要变更文件存储的位置需要修改此处
+file:
+  store:
+    path: /home/edit_file/store
+  lock:
+    seconds: 60
+
 mybatis:
   type-aliases-package: com.ringcentral.assessment.dao
   logging:
@@ -30,12 +38,6 @@ mybatis:
             dao: info
   table.auto: updateModifyTime
 
-# 文件存储以及锁的时间
-file:
-  store:
-    path: /home/edit_file/store
-  lock:
-    seconds: 60
 
 #thymelea模板配置
 spring.thymeleaf:
