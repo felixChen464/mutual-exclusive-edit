@@ -21,7 +21,7 @@ spring:
             min-idle: 4
             max-wait: 10000
 
-# 文件存储以及锁的时间,如果需要变更文件存储的位置需要修改此处
+# 文件存储以及锁的时间,如果需要变更文件存储的位置或文件锁的时间需要修改此处
 file:
   store:
     path: /home/edit_file/store
