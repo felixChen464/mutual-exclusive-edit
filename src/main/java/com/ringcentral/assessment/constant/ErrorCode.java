@@ -19,11 +19,13 @@ public interface ErrorCode {
 
     public static final String FILE_NOT_FOUND = "file.not.found";
 
-    public static final String LACK_OF_FILE_CODE = "lack.of.file.fileCode";
-
     public static final String SUCH_FILE_IS_ON_LOCK = "such.file.is.on.lock";
 
     public static final String READ_FILE_ERROR = "read.file.error";
+
+    public static final String FILE_NAME_IS_TOO_LONG = "file.name.is.too.long";
+
+    public static final String FILE_TEXT_TOO_LARGE = "file.text.is.no.more.than.100000";
 
     public static Map descriptionMap = MapUtil.asMap(
 
@@ -39,7 +41,11 @@ public interface ErrorCode {
 
             SUCH_FILE_IS_ON_LOCK,"该文件正在被锁定",
 
-            READ_FILE_ERROR,"读取文件错误"
+            READ_FILE_ERROR,"读取文件错误",
+
+            FILE_NAME_IS_TOO_LONG,"文件名过长",
+
+            FILE_TEXT_TOO_LARGE,"文本长度不超过100000字符"
     );
 
 }

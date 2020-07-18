@@ -16,7 +16,7 @@
 <form name="saveForm">
     <br>
     file name:<br>
-    <textarea type="text" id="fileName" disabled="true">new file</textarea>
+    <textarea type="text" id="fileName" >new file</textarea>
     <br>
     text:<br>
     <textarea type="text" id="content">type your content here</textarea>
@@ -50,7 +50,7 @@
                     alert("save successful");
                     window.location.href = "/view";
                 } else {
-                    alert(result.message)
+                    alert(result.msg)
                 }
             }
         });

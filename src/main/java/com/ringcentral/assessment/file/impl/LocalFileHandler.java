@@ -5,15 +5,19 @@ import com.ringcentral.assessment.exception.ServerInternalException;
 import com.ringcentral.assessment.file.IFileHandler;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.BooleanUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
+
+import javax.annotation.PostConstruct;
 import javax.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.net.URLEncoder;
+
 import static com.ringcentral.assessment.constant.CommonConstant.TXT;
 import static com.ringcentral.assessment.constant.ErrorCode.FILE_NOT_FOUND;
 import static com.ringcentral.assessment.constant.ErrorCode.READ_FILE_ERROR;
@@ -31,6 +35,17 @@ public class LocalFileHandler implements IFileHandler {
 
     @Value("${file.store.path}")
     private String filePath;
+
+    @PostConstruct
+    public void checkLocation() {
+        File file = new File(filePath);
+        if (!file.exists() || !file.isDirectory()) {
+            Boolean result = file.mkdirs();
+            if (BooleanUtils.isNotTrue(result)) {
+                logger.error("init file store path error,please check file store path is reachable and not protected,store path:{}", filePath);
+            }
+        }
+    }
 
     /**
      * 返回写入的文件对象，为null说明写入失败
@@ -75,7 +90,9 @@ public class LocalFileHandler implements IFileHandler {
 
         //文件不存在或不可读
         if (file == null || !file.exists() || !file.canRead() || !file.isFile() || file.isHidden()) {
-            logger.warn("user try to access unavailable file,fileId:{}", fileId);
+            if (logger.isWarnEnabled()) {
+                logger.warn("user try to access unavailable file,fileId:{}", fileId);
+            }
             return null;
         }
 

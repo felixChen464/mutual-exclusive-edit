@@ -6,10 +6,10 @@
 </head>
 
 <body>
-<span>
+<div>
     <button onclick="javascript:window.location.href='new'">new</button>
     <button onclick="javascript:window.location.href='view'">view</button>
-</span>
+</div>
 
 <br>
 file name:<br>
@@ -20,10 +20,10 @@ text:
 <textarea type="text" id="content"></textarea>
 <br>
 <br>
-<span class="btn-group">
+<div class="btn-group" id="wrap">
     <button id="submitEdit" onclick="submitEdit()">Save</button>
     <button id = "tryToEdit" style="display:none;" onclick="tryToEdit()">try to edit</button>
-</span>
+</div>
 <font color="red"><h2 align="right" id="countDescribe"></h2></font>
 <font color="red"><h3 align="right" id="num" size="70" face="impact"></h3></font>
 
@@ -233,7 +233,7 @@ text:
             countDescribe.innerText = "time left to edit";
             tryToEdit.style.display = "none";
         } else {
-            countDescribe.innerText = "time left to lock"
+            countDescribe.innerText = "file remain locked in";
             tryToEdit.style.display = "block";
         }
     }
@@ -308,8 +308,8 @@ text:
 
             //如果之前是在编辑，那么编辑时间到了
             if(countDescribe.innerHTML === "time left to edit"){
-                countDescribe.innerHTML = "edit time is up";
                 enableEdit(false);
+                countDescribe.innerHTML = "edit time is up";
             }
 
             //否则之前是被其他用户锁着的，此时展示尝试编辑按钮
@@ -322,4 +322,10 @@ text:
         }
     }
 </script>
+<style>
+    #wrap{
+        display: flex;
+        justify-content: flex-start;
+    }
+</style>
 </html>
